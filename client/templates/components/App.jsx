@@ -3,9 +3,6 @@
 //@reactWithMeteorData // Why doesn't this decorator get recognised?
 class App extends React.Component {
 
-  //constructor(props) {
-  //  super(props);
-  //}
   // this function gets hooked up with the decorator
   getMeteorData() {
     return {
