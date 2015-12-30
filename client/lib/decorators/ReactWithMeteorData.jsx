@@ -4,7 +4,7 @@ reactWithMeteorData = function(ComposedComponent) {
       super();
     }
 
-    componentWillMount () {
+    componentWillMount() {
       this.data = {};
       this._meteorDataManager = new MeteorDataManager(this);
       const newData = this._meteorDataManager.calculateData();
@@ -40,7 +40,6 @@ reactWithMeteorData = function(ComposedComponent) {
   }
 }
 
-
 // A class to keep the state and utility methods needed to manage
 // the Meteor data for a component.
 class MeteorDataManager {
@@ -50,25 +49,21 @@ class MeteorDataManager {
     this.oldData = null;
   }
 
-  dispose() {
-    if (this.computation) {
+  dispose () {
+    if(this.computation) {
       this.computation.stop();
       this.computation = null;
     }
   }
 
-  calculateData() {
+  calculateData () {
     const component = this.component;
 
-    if (! component.getMeteorData) {
-      return null;
-    }
+    if (!component.getMeteorData) {return null;}
 
     // When rendering on the server, we don't want to use the Tracker.
     // We only do the first rendering on the server so we can get the data right away
-    if (Meteor.isServer) {
-      return component.getMeteorData();
-    }
+    if (Meteor.isServer) {return component.getMeteorData();}
 
     if (this.computation) {
       this.computation.stop();
@@ -83,16 +78,15 @@ class MeteorDataManager {
     // it stops the inner one.
     this.computation = Tracker.nonreactive(() => {
       return Tracker.autorun((c) => {
-        if (c.firstRun) {
+        if(c.firstRun) {
           const savedSetState = component.setState;
           try {
             component.setState = () => {
-              throw new Error(
-"Can't call `setState` inside `getMeteorData` as this could cause an endless" +
-" loop. To respond to Meteor data changing, consider making this component" +
-" a \"wrapper component\" that only fetches data and passes it in as props to" +
-" a child component. Then you can use `componentWillReceiveProps` in that" +
-" child component.");
+              throw new Error("Can't call `setState` inside `getMeteorData` as this could cause an endless" +
+                " loop. To respond to Meteor data changing, consider making this component" +
+                " a \"wrapper component\" that only fetches data and passes it in as props to" +
+                " a child component. Then you can use `componentWillReceiveProps` in that" +
+                " child component.");
             };
 
             data = component.getMeteorData();
@@ -116,27 +110,20 @@ class MeteorDataManager {
       });
     });
 
-    if (Package.mongo && Package.mongo.Mongo) {
-      Object.keys(data).forEach(function (key) {
-        if (data[key] instanceof Package.mongo.Mongo.Cursor) {
-          console.warn(
-  "Warning: you are returning a Mongo cursor from getMeteorData. This value " +
-  "will not be reactive. You probably want to call `.fetch()` on the cursor " +
-  "before returning it.");
-        }
-      });
-    }
+    if (Package.mongo && Package.mongo.Mongo) {Object.keys(data).forEach(function(key) {
+        if (data[key]instanceof Package.mongo.Mongo.Cursor) {console.warn("Warning: you are returning a Mongo cursor from getMeteorData. This value " +
+            "will not be reactive. You probably want to call `.fetch()` on the cursor " +
+            "before returning it.");}
+      });}
 
     return data;
   }
 
-  updateData(newData) {
+  updateData (newData) {
     const component = this.component;
     const oldData = this.oldData;
 
-    if (! (newData && (typeof newData) === 'object')) {
-      throw new Error("Expected object returned from getMeteorData");
-    }
+    if (!(newData && (typeof newData) === 'object')) {throw new Error("Expected object returned from getMeteorData");}
     // update componentData in place based on newData
     for (let key in newData) {
       component.data[key] = newData[key];
@@ -148,14 +135,11 @@ class MeteorDataManager {
     // this.data.
     if (oldData) {
       for (let key in oldData) {
-        if (!(key in newData)) {
-          delete component.data[key];
-        }
+        if (!(key in newData)) {delete component.data[key];}
       }
     }
     this.oldData = newData;
   }
 }
-
 
 //this.reactWithMeteorData = reactWithMeteorData;
