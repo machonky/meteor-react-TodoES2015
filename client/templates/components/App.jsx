@@ -1,12 +1,26 @@
 //import reactWithMeteorData from './ReactWithMeteorData';
+
 // App component - represents the whole app
 //@reactWithMeteorData // Why doesn't this decorator get recognised?
-class App extends React.Component {
+const App = class App extends React.Component {
 
+  constructor(props, context) {
+    super(props, context);
+
+    this.state = {
+      hideCompleted: false
+    };
+  }
   // this function gets hooked up with the decorator
   getMeteorData() {
+    let query = {}
+
+    if (this.state.hideCompleted) {
+      query = {checked: {$ne:true}};
+    }
     return {
-      tasks: Tasks.find({}, {sort: {createdAt: -1}}).fetch()
+      tasks: Tasks.find(query, {sort: {createdAt: -1}}).fetch(),
+      incompleteCount: Tasks.find({checked: {$ne: true}}).count()
     }
   }
 
@@ -32,17 +46,33 @@ class App extends React.Component {
     domNode.value = "";
   }
 
+  toggleHideCompleted() {
+    this.setState({
+      hideCompleted: ! this.state.hideCompleted
+    });
+  }
+
   render() {
     return (
       <div className="container">
         <header>
-          <h1>Todo List</h1>
-            <form className="new-task" onSubmit={this.handleSubmit} >
-                <input
-                  type="text"
-                  ref="textInput"
-                  placeholder="Type to add new tasks" />
-            </form>
+          <h1>Todo List ({this.data.incompleteCount})</h1>
+
+          <label className="hide-completed">
+            <input
+              type="checkbox"
+              readOnly={true}
+              checked={this.state.hideCompleted}
+              onClick={this.toggleHideCompleted} />
+            Hide Completed Tasks
+          </label>
+
+          <form className="new-task" onSubmit={this.handleSubmit} >
+              <input
+                type="text"
+                ref="textInput"
+                placeholder="Type to add new tasks" />
+          </form>
         </header>
         <ul>
           {this.renderTasks()}
@@ -55,3 +85,4 @@ class App extends React.Component {
 // I have to do this manually as well as expose a global
 // instead of exporting!
 this.App = reactWithMeteorData(autoBind(App));
+//reactMixin(App.prototype, ReactMeteorData);
