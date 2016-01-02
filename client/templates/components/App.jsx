@@ -2,7 +2,7 @@
 
 // App component - represents the whole app
 //@reactWithMeteorData // Why doesn't this decorator get recognised?
-const App = class App extends React.Component {
+class App extends React.Component {
 
   constructor(props, context) {
     super(props, context);
