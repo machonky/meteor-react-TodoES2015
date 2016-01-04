@@ -1,11 +1,5 @@
 class Task extends React.Component {
 
-  static propTypes() {
-    return {
-      task: React.PropTypes.object.isRequired
-    };
-  }
-
   toggleChecked() {
     // Set the checked property to the opposite of its current value
     Meteor.call("setChecked", this.props.task._id, ! this.props.task.checked);
@@ -38,6 +32,10 @@ class Task extends React.Component {
       </li>);
   }
 }
+
+Task.propTypes = {
+  task: React.PropTypes.object.isRequired
+};
 
 // Why do we have to pollute the global namespace, instead of exporting
 this.Task = autoBind(Task);
